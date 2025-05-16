@@ -1,0 +1,3 @@
+Run single test file: pytest tests/test_college_bridge.py
+Run All Tests with report resources: pytest tests/ --test-browser=chrome --headless=False --alluredir=reports/allure-results
+Report Generate: allure serve reports/allure-results
