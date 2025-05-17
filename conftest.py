@@ -26,7 +26,8 @@ def pytest_sessionstart(session):
     """Hook to clean up folders before test session starts."""
     clean_directory(BaseConfig.REPORT_DIR)
     clean_directory(BaseConfig.SCREENSHOT_DIR)
-    print("✅ Cleaned reports/ and screenshots/ folders.")
+    clean_directory(BaseConfig.RECORD_VIDEO_DIR)
+    print("✅ Cleaned reports/ , screenshots/ and video/ folders.")
 
 
 def pytest_addoption(parser):
@@ -56,10 +57,25 @@ def browser(pytestconfig):
 
 @pytest.fixture(scope="class")
 def page(browser, request):
-    context = browser.new_context()
+    BaseConfig.RECORD_VIDEO_DIR.mkdir(parents=True, exist_ok=True)
+    context = browser.new_context(
+        record_video_dir=str(BaseConfig.RECORD_VIDEO_DIR),
+        record_video_size={"width": 1920, "height": 1080}  # 👈 Set resolution here
+    )
+    # context = browser.new_context()
     page = context.new_page()
     request.cls.page = page
     yield page
+
+    # Stop and save video
+    video_path = page.video.path()
+
+    # Attach video to Allure
+    allure.attach.file(
+        video_path,
+        name=f"{request.node.name}_video",
+        attachment_type=allure.attachment_type.MP4  # Only MP4 is supported
+    )
 
     # Automatically take a screenshot after each test
     screenshot_path = take_screenshot(page, request.node.name)
