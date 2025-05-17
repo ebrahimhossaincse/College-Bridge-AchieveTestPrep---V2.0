@@ -7,6 +7,8 @@ class BaseConfig:
     SCREENSHOT_DIR = BASE_DIR / "reports" / "screenshots"
     LOGS_DIR = BASE_DIR / "logs"
     ENV_CONFIG_DIR = BASE_DIR / "config" / "environments"
+    REPORT_DIR = BASE_DIR / "reports" / "allure-results"
+    RECORD_VIDEO_DIR = BASE_DIR / "reports" / "videos"
 
     load_dotenv(dotenv_path=BASE_DIR / ".env")
 

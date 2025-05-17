@@ -40,6 +40,9 @@ class CollegeBridgeLandingPage(BasePage):
     def open(self):
         self.logger.info("Opening College Bridge Landing Page.")
         self.page.goto(BASE_URL, wait_until="domcontentloaded")
+        screenshot_path = take_screenshot(self.page, "landing_page_opened")
+        allure.attach.file(str(screenshot_path), name="open_url", attachment_type=allure.attachment_type.PNG)
+
 
     @allure.step("Fill out and submit the College Bridge landing form")
     def fill_form_and_submit(self):
@@ -51,19 +54,23 @@ class CollegeBridgeLandingPage(BasePage):
             self.enter_text(LandingPageLocators.PHONE_NUMBER, self.test_data["phone_number"])
             self.enter_text(LandingPageLocators.ZIP_CODE, self.test_data["zip_code"])
 
-            take_screenshot(self.page, "form_filled")
+            screenshot_path = take_screenshot(self.page, "form_filled")
+            allure.attach.file(str(screenshot_path), name="form_filled", attachment_type=allure.attachment_type.PNG)
 
             self.click(LandingPageLocators.GET_STARTED)
             self.logger.info("Form submitted successfully.")
         except Exception as e:
-            take_screenshot(self.page, "form_submission_failed")
+            screenshot_path = take_screenshot(self.page, "form_submission_failed")
+            allure.attach.file(str(screenshot_path), name="form_submission_failed", attachment_type=allure.attachment_type.PNG)
+
             self.logger.error(f"Form submission failed: {e}")
             raise
 
     @allure.step("Click 'Start Qualify' button")
     def click_start_qualify_button(self):
         self.click(StartQualifyPageLocators.NEXT_BUTTON)
-        take_screenshot(self.page, "start_qualify_clicked")
+        screenshot_path = take_screenshot(self.page, "start_qualify_clicked")
+        allure.attach.file(str(screenshot_path), name="start_qualify_clicked", attachment_type=allure.attachment_type.PNG)
 
     @allure.step("Complete the mindset qualification process")
     def mindset_qualify_process(self):
@@ -75,6 +82,8 @@ class CollegeBridgeLandingPage(BasePage):
             self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
 
             self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
+            time.sleep(1)
+            self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
 
             self.click(MindsetQualifyPageLocators.VERY_EXCITED)
             self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
@@ -83,9 +92,12 @@ class CollegeBridgeLandingPage(BasePage):
 
             self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
 
-            take_screenshot(self.page, "mindset_process_completed")
+            screenshot_path = take_screenshot(self.page, "mindset_process_completed")
+            allure.attach.file(str(screenshot_path), name="mindset_process_completed", attachment_type=allure.attachment_type.PNG)
             self.logger.info("Mindset qualification process completed.")
         except Exception as e:
-            take_screenshot(self.page, "mindset_process_failed")
+            screenshot_path = take_screenshot(self.page, "mindset_process_failed")
+            allure.attach.file(str(screenshot_path), name="mindset_process_failed", attachment_type=allure.attachment_type.PNG)
+
             self.logger.error(f"Mindset qualification process failed: {e}")
             raise
