@@ -5,3 +5,4 @@ allure-pytest
 python-dotenv
 pyyaml
 playwright
+pytest-rerunfailures

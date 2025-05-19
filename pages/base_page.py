@@ -1,5 +1,5 @@
 from utils.logger import setup_logger
-from utils.helpers import highlight_element
+from utils.helpers import highlight_element, take_screenshot
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
 
 class BasePage:
@@ -136,3 +136,9 @@ class BasePage:
     def execute_script(self, script: str):
         self.logger.info(f"Executing JavaScript: {script}")
         return self.page.evaluate(script)
+
+    def get_current_url(self):
+        url = self.page.url
+        self.logger.info(f"Retrieved current URL: '{url}'")
+        return url
+

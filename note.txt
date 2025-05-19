@@ -1,3 +1,4 @@
-Run single test file: pytest tests/test_college_bridge.py
-Run All Tests with report resources: pytest tests/ --test-browser=chromium --headless=False --alluredir=reports/allure-results
-Report Generate: allure serve reports/allure-results
+Run single test file: pytest tests/test_college_bridge.py --reruns 2 --reruns-delay 2 -v -s
+Run All Tests with report resources: pytest tests/ --test-browser=chromium --headless=False --alluredir=reports/allure-results --reruns 3 --reruns-delay 2 -v -s
+Report Generate: #1 allure generate reports/allure-results -o reports/allure-report --clean
+#2 allure open reports/allure-report

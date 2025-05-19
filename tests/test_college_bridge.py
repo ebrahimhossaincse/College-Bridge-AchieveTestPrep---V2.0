@@ -34,3 +34,21 @@ class TestCollegeBridge:
     def test_complete_mindset(self):
         with allure.step("Complete mindset qualify process"):
             self.landing_page.mindset_qualify_process()
+
+    @allure.title("Complete Bridge Start Process")
+    @pytest.mark.order(5)
+    def test_complete_bridge_start(self):
+        with allure.step("Complete bridge start process"):
+            self.landing_page.bridge_start_process()
+
+    # @allure.title("Complete General Education Process")
+    # @pytest.mark.order(6)
+    # def test_complete_general_education(self):
+    #     with allure.step("Complete general education process"):
+    #         self.landing_page.general_education_process()
+    #
+    # @allure.title("Complete Entrance Exam Process")
+    # @pytest.mark.order(7)
+    # def test_complete_entrance_exam(self):
+    #     with allure.step("Complete entrance exam process"):
+    #         self.landing_page.entrance_exam_process()

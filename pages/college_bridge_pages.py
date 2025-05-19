@@ -4,7 +4,8 @@ import allure
 
 from pathlib import Path
 from config.settings import BASE_URL
-from locators.college_bridge_locators import LandingPageLocators, StartQualifyPageLocators, MindsetQualifyPageLocators
+from locators.college_bridge_locators import LandingPageLocators, StartQualifyPageLocators, MindsetQualifyPageLocators, \
+    BridgeStartPageLocators, GeneralEducationPageLocators, EntranceExamPageLocators
 from pages.base_page import BasePage
 from utils.helpers import take_screenshot
 from utils.generate_random_test_data import fetch_fake_users, save_to_json
@@ -80,10 +81,10 @@ class CollegeBridgeLandingPage(BasePage):
 
             self.enter_text(MindsetQualifyPageLocators.ENTER_YOUR_ANSWER, "Test Lead")
             self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
-
-            self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
             time.sleep(1)
-            self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
+            self.click(MindsetQualifyPageLocators.NEXT_BUTTON_INFO)
+
+            # self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
 
             self.click(MindsetQualifyPageLocators.VERY_EXCITED)
             self.click(MindsetQualifyPageLocators.NEXT_BUTTON)
@@ -98,6 +99,65 @@ class CollegeBridgeLandingPage(BasePage):
         except Exception as e:
             screenshot_path = take_screenshot(self.page, "mindset_process_failed")
             allure.attach.file(str(screenshot_path), name="mindset_process_failed", attachment_type=allure.attachment_type.PNG)
-
             self.logger.error(f"Mindset qualification process failed: {e}")
             raise
+
+    @allure.step("Complete the bridge start process")
+    def bridge_start_process(self):
+        try:
+            self.click(BridgeStartPageLocators.NEXT_BUTTON)
+            screenshot_path = take_screenshot(self.page, "bridge_start_clicked")
+            allure.attach.file(str(screenshot_path), name="bridge_start_clicked",
+                               attachment_type=allure.attachment_type.PNG)
+
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "bridge_start_failed")
+            allure.attach.file(str(screenshot_path), name="bridge_start_failed", attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"Bridge Start process failed: {e}")
+            raise
+
+    @allure.step("Complete the general education process")
+    def general_education_process(self):
+        try:
+            self.click(GeneralEducationPageLocators.NEXT_BUTTON)
+            # self.click(GeneralEducationPageLocators.NEXT_BUTTON)
+            time.sleep(1)
+            self.click(GeneralEducationPageLocators.NEXT_BUTTON)
+            self.click(GeneralEducationPageLocators.I_HAVE_NOT_PASSED_ANY_GEN_EDS_YET)
+            self.click(GeneralEducationPageLocators.NEXT_BUTTON)
+            self.click(GeneralEducationPageLocators.VERY_IMPORTANT)
+            self.click(GeneralEducationPageLocators.NEXT_BUTTON)
+            self.click(GeneralEducationPageLocators.NEXT_BUTTON)
+
+            screenshot_path = take_screenshot(self.page, "general_education_process_completed")
+            allure.attach.file(str(screenshot_path), name="general_education_process_completed", attachment_type=allure.attachment_type.PNG)
+            self.logger.info("General Education process completed.")
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "general_education_process_failed")
+            allure.attach.file(str(screenshot_path), name="general_education_process_failed", attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"General Education process failed: {e}")
+            raise
+
+    @allure.step("Complete the entrance exam process")
+    def entrance_exam_process(self):
+        try:
+            self.click(EntranceExamPageLocators.NEXT_BUTTON)
+            self.click(EntranceExamPageLocators.I_HAVE_NOT_TAKEN_MY_RN_ENTRANCE_EXAM)
+            self.click(EntranceExamPageLocators.NEXT_BUTTON)
+            self.click(EntranceExamPageLocators.NEXT_BUTTON)
+            self.click(EntranceExamPageLocators.VERY_CONCERNED)
+            self.click(EntranceExamPageLocators.NEXT_BUTTON)
+            self.click(EntranceExamPageLocators.NEXT_BUTTON)
+
+            screenshot_path = take_screenshot(self.page, "entrance_exam_process_completed")
+            allure.attach.file(str(screenshot_path), name="entrance_exam_process_completed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.info("General Education process completed.")
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "entrance_exam_process_failed")
+            allure.attach.file(str(screenshot_path), name="entrance_exam_process_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"Entrance Exam process failed: {e}")
+            raise
+
+
