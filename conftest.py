@@ -27,6 +27,7 @@ def pytest_sessionstart(session):
     clean_directory(BaseConfig.REPORT_DIR)
     clean_directory(BaseConfig.SCREENSHOT_DIR)
     clean_directory(BaseConfig.RECORD_VIDEO_DIR)
+    clean_directory(BaseConfig.LOGS_DIR)
     print("✅ Cleaned reports/ , screenshots/ and video/ folders.")
 
 

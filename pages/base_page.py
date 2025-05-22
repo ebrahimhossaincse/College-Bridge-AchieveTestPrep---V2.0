@@ -1,6 +1,9 @@
+import time
+
 from utils.logger import setup_logger
 from utils.helpers import highlight_element, take_screenshot
 from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+import allure
 
 class BasePage:
     def __init__(self, page):
@@ -141,4 +144,95 @@ class BasePage:
         url = self.page.url
         self.logger.info(f"Retrieved current URL: '{url}'")
         return url
+
+    def compare_current_url(self, expected_url, timeout=5000, retries=5):
+        """Compare current URL with expected URL, waiting and retrying if needed."""
+        attempt = 1
+        while attempt <= retries:
+            try:
+                self.logger.debug(f"Attempt {attempt}/{retries}: Waiting for URL {expected_url}")
+                self.page.wait_for_url(expected_url, timeout=timeout)
+                self.logger.info(f"URL matched: {self.page.url}")
+                return True
+            except Exception as e:
+                self.logger.warning(
+                    f"Attempt {attempt}/{retries}: Current URL {self.page.url} does not match {expected_url}. Error: {e}")
+                if attempt == retries:
+                    self.logger.error(f"URL check failed after {retries} attempts")
+                    return False
+                attempt += 1
+        return False
+
+    def click_with_retry(self, locator, expected_url, retries=5):
+        """Click an element with retries, handling same-page scenarios."""
+        initial_url = self.page.url
+        for attempt in range(retries):
+            try:
+                element = self.page.locator(locator)
+                element.scroll_into_view_if_needed()
+                element.wait_for(state="visible", timeout=5000)
+                is_enabled = element.is_enabled()
+                self.logger.info(f"Attempt {attempt + 1}: Clicking locator {locator}, enabled={is_enabled}")
+                if attempt < retries - 1:
+                    highlight_element(self.page, locator)
+                    element.click()
+                else:
+                    self.page.evaluate("el => el.click()", element)
+                self.page.wait_for_timeout(1500)
+                if self.page.url != initial_url:
+                    self.logger.info(f"Click successful on attempt {attempt + 1}, URL changed to {self.page.url}")
+                    return
+                if self.is_content_updated(locator):
+                    self.logger.info(f"Click successful on attempt {attempt + 1}, content updated without URL change")
+                    return
+                self.logger.warning(f"Attempt {attempt + 1}: URL did not change after clicking {locator}, retrying...")
+            except Exception as e:
+                self.logger.warning(f"Attempt {attempt + 1} failed for locator {locator}: {e}")
+            if attempt == retries - 1:
+                raise ValueError(f"Failed to navigate or update content after {retries} attempts on locator {locator}")
+            self.page.wait_for_timeout(1000)
+
+    def is_content_updated(self, locator, timeout=2000):
+        """Check if page content updated (e.g., new element appeared)."""
+        try:
+            self.page.wait_for_selector(locator, state="visible", timeout=timeout)
+            return True
+        except:
+            return False
+
+    def select_dropdown_with_retry(self, locator, value, retries=3):
+        """Select a dropdown option with retries."""
+        for attempt in range(retries):
+            try:
+                element = self.page.locator(locator)
+                element.scroll_into_view_if_needed()
+                element.wait_for(state="visible", timeout=5000)
+                self.logger.info(f"Attempt {attempt + 1}: Selecting {value} in dropdown {locator}")
+                highlight_element(self.page, locator)
+                element.select_option(value)
+                self.page.wait_for_timeout(1000)
+                return
+            except Exception as e:
+                self.logger.warning(f"Attempt {attempt + 1} failed for dropdown {locator}: {e}")
+                if attempt == retries - 1:
+                    raise ValueError(f"Failed to select {value} in dropdown {locator} after {retries} attempts")
+                self.page.wait_for_timeout(1000)
+
+    def enter_text_with_retry(self, locator, value, retries=3):
+        """Enter text into a field with retries."""
+        for attempt in range(retries):
+            try:
+                element = self.page.locator(locator)
+                element.scroll_into_view_if_needed()
+                element.wait_for(state="visible", timeout=5000)
+                self.logger.info(f"Attempt {attempt + 1}: Entering {value} in field {locator}")
+                highlight_element(self.page, locator)
+                element.fill(value)
+                self.page.wait_for_timeout(1000)
+                return
+            except Exception as e:
+                self.logger.warning(f"Attempt {attempt + 1} failed for field {locator}: {e}")
+                if attempt == retries - 1:
+                    raise ValueError(f"Failed to enter {value} in field {locator} after {retries} attempts")
+                self.page.wait_for_timeout(1000)
 

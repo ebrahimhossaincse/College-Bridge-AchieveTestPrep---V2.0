@@ -34,7 +34,7 @@ class GeneralEducationPageLocators:
     VERY_IMPORTANT = "//div[contains(text(),'Very important.')]"
 
 class EntranceExamPageLocators:
-    NEXT_BUTTON = "//footer/button[1]"
+    NEXT_BUTTON = "(//button[contains(text(),'Next')])[1]"
     I_HAVE_PASSED_MY_RN_ENTRANCE_EXAM = "//div[contains(text(),'I’ve passed my RN entrance exam.')]"
     I_TOOK_THE_EXAM_BUT_DID_NOT_PASS = '//div[contains(text(),"I took the exam, but didn\'t pass.")]'
     I_HAVE_NOT_TAKEN_MY_RN_ENTRANCE_EXAM = "//div[contains(text(),'I haven’t taken my RN entrance exam.')]"

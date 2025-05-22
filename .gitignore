@@ -42,3 +42,5 @@ screenshots/
 
 # Configuration files that are sensitive or shouldn't be tracked
 config/secrets/
+
+reports/videos/

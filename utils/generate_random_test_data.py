@@ -28,11 +28,12 @@ def fetch_fake_users(quantity=1):
     formatted_users = []
 
     for user in users:
+        email = f"{user['firstname'].lower()}.{user['lastname'].lower()}@noemail.com"
         formatted_users.append({
             "first_name": user["firstname"],
             "last_name": user["lastname"],
-            "email": user["email"],
-            "phone_number":clean_phone_number(user["phone"]),
+            "email": email,
+            "phone_number": clean_phone_number(user["phone"]),
             "zip_code": user.get("zipcode", "19801"),  # fallback if not present
             "program_of_interest": random.choice(PROGRAM_OPTIONS)
         })
