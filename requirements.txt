@@ -7,3 +7,4 @@ pyyaml
 playwright
 pytest-rerunfailures
 requests
+pytest-dependency
