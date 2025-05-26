@@ -30,7 +30,6 @@ def pytest_sessionstart(session):
     clean_directory(BaseConfig.LOGS_DIR)
     print("✅ Cleaned reports/ , screenshots/ and video/ folders.")
 
-
 def pytest_addoption(parser):
     parser.addoption(
         "--test-browser", action="store", default="chromium",
@@ -63,7 +62,8 @@ def page(browser, request):
         record_video_dir=str(BaseConfig.RECORD_VIDEO_DIR),
         record_video_size={"width": 1920, "height": 1080}  # 👈 Set resolution here
     )
-    # context = browser.new_context()
+    context.clear_cookies()
+    context.clear_permissions()
     page = context.new_page()
     request.cls.page = page
     yield page

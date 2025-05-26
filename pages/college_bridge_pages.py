@@ -2,27 +2,46 @@ import json
 import time
 import allure
 from pathlib import Path
-from config.settings import BASE_URL
+from config.settings import BASE_URL, PREBUY
 from locators.college_bridge_locators import (
     LandingPageLocators,
     StartQualifyPageLocators,
     MindsetQualifyPageLocators,
     BridgeStartPageLocators,
     GeneralEducationPageLocators,
-    EntranceExamPageLocators
+    EntranceExamPageLocators, CoreNursingPageLocators, ExitExamPageLocators, ConfirmContactPageLocators,
+    ResultsPageLocators, CollegePlanPageLocators, PreBuyOrNotPreBuyOptionsPageLocators, PreBuyCheckoutPageLocators,
+    PreBuyPurchasedPageLocators
 )
 from pages.base_page import BasePage
 from utils.helpers import take_screenshot
-from utils.generate_random_test_data import fetch_fake_users, save_to_json
+from utils.generate_random_test_data import fetch_fake_users, save_to_json, clean_phone_number
+
 
 class CollegeBridgeLandingPage(BasePage):
     TEST_DATA_FILE = Path(__file__).resolve().parent.parent / "test_data" / "college_bridge_test_data.json"
     TEST_URLS = Path(__file__).resolve().parent.parent / "test_data" / "college_bridge_urls.json"
+    TEST_CARDS = Path(__file__).resolve().parent.parent / "test_data" / "test_card.json"
+
+    # Prepare fresh test data once per test run at the class level
+    try:
+        # Delete existing test data file to force regeneration
+        if TEST_DATA_FILE.exists():
+            TEST_DATA_FILE.unlink()
+        # Generate and save new test data
+        users = fetch_fake_users(quantity=1)  # Generate one user
+        save_to_json(users, TEST_DATA_FILE)  # Save to JSON file
+        with open(TEST_DATA_FILE, "r") as file:
+            TEST_DATA = json.load(file)[0]  # Load first user
+
+    except Exception as e:
+        raise RuntimeError(f"Failed to prepare or load test data: {e}")
 
     def __init__(self, page):
         super().__init__(page)
-        self.test_data = self._prepare_and_load_test_data()
+        self.test_data = self.TEST_DATA  # Use class-level test data
         self.test_urls = self._load_json_file(self.TEST_URLS)
+        self.test_cards = self._load_json_file(self.TEST_CARDS)
 
     def _load_json_file(self, file_path):
         """Load JSON file and handle errors."""
@@ -34,16 +53,6 @@ class CollegeBridgeLandingPage(BasePage):
                 return data
         except Exception as e:
             raise RuntimeError(f"Failed to load {file_path}: {e}")
-
-    def _prepare_and_load_test_data(self):
-        """Fetch, save, and load test data."""
-        try:
-            users = fetch_fake_users()
-            save_to_json(users, self.TEST_DATA_FILE)
-            return self._load_json_file(self.TEST_DATA_FILE)[0]  # Use first user
-        except Exception as e:
-            self.logger.error(f"❌ Failed to prepare or load test data: {e}")
-            raise
 
     @allure.step("Open College Bridge Landing Page")
     def open(self):
@@ -239,4 +248,255 @@ class CollegeBridgeLandingPage(BasePage):
             allure.attach.file(str(screenshot_path), name="entrance_exam_process_failed",
                                attachment_type=allure.attachment_type.PNG)
             self.logger.error(f"Entrance Exam process failed: {e}")
+            raise
+
+    @allure.step("Complete the core nursing process")
+    def core_nursing_process(self):
+        try:
+            steps = [
+                (self.test_urls["base_url"] + self.test_urls["paths"][18], CoreNursingPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][19],
+                 CoreNursingPageLocators.I_HAVE_NOT_TAKEN_MY_CORE_RN_COURSES, self.click_with_retry,
+                 "Select I Have Not Taken My Core RN Courses Option"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][19], CoreNursingPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][20], CoreNursingPageLocators.VERY_CONCERNED,
+                 self.click_with_retry, "Select Very Concerned"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][20], CoreNursingPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][21], CoreNursingPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][22], CoreNursingPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button")
+            ]
+
+            for step_index, (expected_url, locator, action, description) in enumerate(steps, 1):
+                if not self.compare_current_url(expected_url):
+                    raise ValueError(
+                        f"Step {step_index} ({description}): Current URL {self.page.url} does not match {expected_url}")
+                self.logger.info(f"Step {step_index}: {description} on URL {self.page.url}")
+                action(locator, expected_url)
+
+            screenshot_path = take_screenshot(self.page, "core_nursing_process_completed")
+            allure.attach.file(str(screenshot_path), name="core_nursing_process_completed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.info("Core Nursing process completed.")
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "core_nursing_process_failed")
+            allure.attach.file(str(screenshot_path), name="core_nursing_process_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"Core Nursing process failed: {e}")
+            raise
+
+    @allure.step("Exit Exam process")
+    def exit_exam_process(self):
+        try:
+            steps = [
+                (self.test_urls["base_url"] + self.test_urls["paths"][23], ExitExamPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][24],
+                 ExitExamPageLocators.I_HAVE_NOT_TAKEN_THE_NCLEX_RN_YET, self.click_with_retry,
+                 "Select I Have Not Taken My Core RN Courses Option"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][24], ExitExamPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][25], ExitExamPageLocators.VERY_CONCERNED,
+                 self.click_with_retry, "Select Very Concerned"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][25], ExitExamPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][26], ExitExamPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][27], ExitExamPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button")
+            ]
+
+            for step_index, (expected_url, locator, action, description) in enumerate(steps, 1):
+                if not self.compare_current_url(expected_url):
+                    raise ValueError(
+                        f"Step {step_index} ({description}): Current URL {self.page.url} does not match {expected_url}")
+                self.logger.info(f"Step {step_index}: {description} on URL {self.page.url}")
+                action(locator, expected_url)
+
+            screenshot_path = take_screenshot(self.page, "exit_exam_process_completed")
+            allure.attach.file(str(screenshot_path), name="exit_exam_process_completed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.info("Exit Exam process completed.")
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "exit_exam_process_failed")
+            allure.attach.file(str(screenshot_path), name="exit_exam_process_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"Exit Exam process failed: {e}")
+            raise
+
+    @allure.step("Confirm Contact page process")
+    def confirm_contact_page_process(self):
+        try:
+            expected_url = self.test_urls["base_url"] + self.test_urls["paths"][28]
+            if not self.compare_current_url(expected_url):
+                raise ValueError(f"Current URL {self.page.url} does not match {expected_url}")
+
+            self.wait_for_visible(ConfirmContactPageLocators.EMAIL_ADDRESS)
+            email_value = self.page.get_attribute(ConfirmContactPageLocators.EMAIL_ADDRESS, "value")
+            print(f"Email text: {email_value}")
+            print(f"Expected email: {self.test_data['email']}")
+            assert self.test_data["email"] in email_value
+
+            self.wait_for_visible(ConfirmContactPageLocators.PHONE_NUMBER)
+            phone_value = self.page.get_attribute(ConfirmContactPageLocators.PHONE_NUMBER, "value")
+            cleaned_phone_value = clean_phone_number(phone_value)  # Clean the phone number from the page
+            print(f"PHONE_NUMBER text: {cleaned_phone_value}")
+            print(f"Expected PHONE_NUMBER: {self.test_data['phone_number']}")
+            assert cleaned_phone_value == self.test_data["phone_number"]
+
+            self.logger.info(f"Clicking Next button on URL {self.page.url}")
+            self.click_with_retry(ConfirmContactPageLocators.NEXT_BUTTON, expected_url)
+
+            screenshot_path = take_screenshot(self.page, "confirm_contact_passed")
+            allure.attach.file(str(screenshot_path), name="confirm_contact_passed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.info("Confirm Contact process completed.")
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "confirm_contact_failed")
+            allure.attach.file(str(screenshot_path), name="confirm_contact_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"Confirm Contact process failed: {e}")
+            raise
+
+    @allure.step("Result Page process")
+    def result_page_process(self):
+        try:
+            expected_url = self.test_urls["base_url"] + self.test_urls["paths"][29]
+            if not self.compare_current_url(expected_url):
+                raise ValueError(f"Current URL {self.page.url} does not match {expected_url}")
+
+            self.logger.info(f"Clicking Next button on URL {self.page.url}")
+            self.click_with_retry(ResultsPageLocators.NEXT_BUTTON, expected_url)
+            screenshot_path = take_screenshot(self.page, "result_page_passed")
+            allure.attach.file(str(screenshot_path), name="result_page_passed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.info("Result Page process completed.")
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "result_page_failed")
+            allure.attach.file(str(screenshot_path), name="result_page_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"Result Page process failed: {e}")
+            raise
+
+    @allure.step("College Plan process")
+    def college_plan_process(self):
+        try:
+            steps = [
+                (self.test_urls["base_url"] + self.test_urls["paths"][30], CollegePlanPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][31], CollegePlanPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                (self.test_urls["base_url"] + self.test_urls["paths"][32], CollegePlanPageLocators.NEXT_BUTTON,
+                 self.click_with_retry, "Click Next Button"),
+                # (self.test_urls["base_url"] + self.test_urls["paths"][33], CollegePlanPageLocators.NEXT_BUTTON,
+                #  self.click_with_retry, "Click Next Button"),
+            ]
+
+            for step_index, (expected_url, locator, action, description) in enumerate(steps, 1):
+                if not self.compare_current_url(expected_url):
+                    raise ValueError(
+                        f"Step {step_index} ({description}): Current URL {self.page.url} does not match {expected_url}")
+                self.logger.info(f"Step {step_index}: {description} on URL {self.page.url}")
+                action(locator, expected_url)
+
+            self.click(CollegePlanPageLocators.NEXT_BUTTON)
+
+            screenshot_path = take_screenshot(self.page, "college_plan_process_completed")
+            allure.attach.file(str(screenshot_path), name="college_plan_process_completed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.info("College Plan process completed.")
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "college_plan_process_failed")
+            allure.attach.file(str(screenshot_path), name="college_plan_process_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"College Plan process failed: {e}")
+            raise
+
+    @allure.step("Decision PreBuy or No PreBuy")
+    def decision_PreBuy_or_NoPreBuy(self, option=PREBUY):
+        try:
+            expected_url = self.test_urls["base_url"] + self.test_urls["paths"][34]
+            if not self.compare_current_url(expected_url):
+                raise ValueError(f"Current URL {self.page.url} does not match {expected_url}")
+            if(option==True):
+                self.logger.info(f"Clicking Start My Plan button on URL {self.page.url}")
+                self.click(PreBuyOrNotPreBuyOptionsPageLocators.START_MY_PLAN)
+                self.bridge_plan_checkout_process()
+            else:
+                self.logger.info(f"Clicking Continue with out a plan button on URL {self.page.url}")
+                self.click(PreBuyOrNotPreBuyOptionsPageLocators.CONTINUE_WITH_OUT_A_PLAN)
+
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "college_plan_process_failed")
+            allure.attach.file(str(screenshot_path), name="college_plan_process_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"College Plan process failed: {e}")
+            raise
+
+    @allure.step("Bridge Plan Checkout Process")
+    def bridge_plan_checkout_process(self):
+        try:
+            expected_url = self.test_urls["base_url"] + self.test_urls["paths"][35]
+            if not self.compare_current_url(expected_url):
+                raise ValueError(f"Current URL {self.page.url} does not match {expected_url}")
+
+            self.logger.info(f"Verify the Name on card")
+            name = self.page.get_attribute(PreBuyCheckoutPageLocators.NAME_ON_CARD, "value")
+            full_name = self.test_data["first_name"]+" "+self.test_data["last_name"]
+            print(f"Name on card: {name}")
+            print(f"Expected name on card: {full_name}")
+            assert full_name in name
+
+            print(f"Card Number: {self.test_cards['card_number']}")
+            self.enter_text_with_retry(PreBuyCheckoutPageLocators.CARD_NUMBER, self.test_cards["card_number"])
+            self.enter_text_with_retry(PreBuyCheckoutPageLocators.EXPIRY, self.test_cards["expiry"])
+            self.enter_text_with_retry(PreBuyCheckoutPageLocators.CVV, self.test_cards["cvv"])
+            self.enter_text_with_retry(PreBuyCheckoutPageLocators.POSTAL_CODE, self.test_cards["postal_code"])
+
+            self.logger.info(f"Verify the Email Address")
+            email_address = self.page.get_attribute(PreBuyCheckoutPageLocators.EMAIL_ADDRESS, "value")
+            email = self.test_data["email"]
+            print(f"Email address: {email_address}")
+            print(f"Expected email address: {email}")
+            assert email_address in email
+
+            self.click_with_retry(PreBuyCheckoutPageLocators.CHECKBOX, expected_url)
+            self.click_with_retry(PreBuyCheckoutPageLocators.PAY_NOW, expected_url)
+            time.sleep(25)
+
+            #
+            # if not self.compare_current_url(expected_url):
+            #     raise ValueError(f"Current URL {self.page.url} does not match {expected_url}")
+
+            self.logger.info(f"Verify the Bridge Plan Purchased Message")
+            expected_congratulations_text = f"Congrats, {self.test_data['first_name']}!You’ve taken the first step toward building an RN Bridge Plan that fits your life."
+
+            # Wait for the element to ensure it’s loaded
+            self.page.wait_for_selector(PreBuyPurchasedPageLocators.CONGRATULATIONS_TEXT, state="visible")
+            congratulations_text = self.page.text_content(PreBuyPurchasedPageLocators.CONGRATULATIONS_TEXT).strip()
+
+            # Log raw strings for debugging
+            print(f"Actual (repr): {repr(congratulations_text)}")
+            print(f"Expected (repr): {repr(expected_congratulations_text)}")
+
+            # Normalize apostrophes
+            congratulations_text = congratulations_text.replace("'", "’")
+
+            # Assert with stripped strings
+            assert congratulations_text == expected_congratulations_text, f"Text mismatch: got '{congratulations_text}', expected '{expected_congratulations_text}'"
+
+            screenshot_path = take_screenshot(self.page, "bridge_plan_checkout_process_completed")
+            allure.attach.file(str(screenshot_path), name="bridge_plan_checkout_process_completed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.info("Bridge Plan Checkout process completed.")
+
+        except Exception as e:
+            screenshot_path = take_screenshot(self.page, "bridge_plan_checkout_process_failed")
+            allure.attach.file(str(screenshot_path), name="bridge_plan_checkout_process_failed",
+                               attachment_type=allure.attachment_type.PNG)
+            self.logger.error(f"Bridge Plan Checkout process failed: {e}")
             raise

@@ -22,7 +22,7 @@ class MindsetQualifyPageLocators:
     VERY_EXCITED = "//div[contains(text(),'Very excited.')]"
 
 class BridgeStartPageLocators:
-    NEXT_BUTTON = "//footer/button[1]"
+    NEXT_BUTTON = "(//button[contains(text(),'Next')])[1]"
 
 class GeneralEducationPageLocators:
     NEXT_BUTTON = "(//button[contains(text(),'Next')])[1]"
@@ -61,7 +61,7 @@ class ExitExamPageLocators:
     VERY_CONCERNED = "//div[contains(text(),'Very concerned.')]"
 
 class ConfirmContactPageLocators:
-    NEXT_BUTTON = "//footer/button[1]"
+    NEXT_BUTTON = "(//button[contains(text(),'Next')])[2]"
     EMAIL_ADDRESS = "//input[@name='email']"
     PHONE_NUMBER = "//input[@name='phone']"
 
@@ -70,6 +70,9 @@ class ResultsPageLocators:
 
 class CollegePlanPageLocators:
     NEXT_BUTTON = "(//button[contains(text(), 'Next')])[1]"
+    PLEASE_WAIT = "//button[contains(text(),'Please wait...')]"
+
+class PreBuyOrNotPreBuyOptionsPageLocators:
     START_MY_PLAN = "(//button[contains(text(), 'Start My Plan')])[1]"
     CONTINUE_WITH_OUT_A_PLAN = "//button[contains(text(),'Continue without a plan')]"
 
@@ -85,6 +88,7 @@ class PreBuyCheckoutPageLocators:
 
 class PreBuyPurchasedPageLocators:
     NEXT_BUTTON = "//footer/button[1]"
+    CONGRATULATIONS_TEXT= "//span[contains(.,'You’ve taken the first step toward building an RN Bridge P')]"
 
 class PreBuyResPageLocators:
     NEXT_BUTTON = "//footer/button[1]"

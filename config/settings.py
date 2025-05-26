@@ -4,6 +4,7 @@ from config.base_config import BaseConfig
 ENV = BaseConfig.ENV
 HEADLESS = BaseConfig.HEADLESS
 BROWSER = BaseConfig.BROWSER
+PREBUY = BaseConfig.PREBUY
 
 try:
     yaml_path = BaseConfig.ENV_CONFIG_DIR / f"{ENV}.yaml"

@@ -15,3 +15,4 @@ class BaseConfig:
     ENV = os.getenv("ENV", "staging")
     HEADLESS = os.getenv("HEADLESS", "True").lower() in ("true", "1", "yes")
     BROWSER = os.getenv("BROWSER", "chromium").lower()
+    PREBUY = os.getenv("PREBUY", "True").lower() in ("true", "1", "yes")

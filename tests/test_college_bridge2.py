@@ -59,3 +59,46 @@ class TestCollegeBridge:
     def test_complete_entrance_exam(self):
         with allure.step("Complete entrance exam process"):
             self.landing_page.entrance_exam_process()
+
+    @allure.title("Complete Core Nursing Process")
+    @pytest.mark.order(8)
+    @pytest.mark.dependency(depends=["test_complete_entrance_exam"], name="test_complete_core_nursing")
+    def test_complete_core_nursing(self):
+        with allure.step("Complete core nursing process"):
+            self.landing_page.core_nursing_process()
+
+    @allure.title("Exit Exam Process")
+    @pytest.mark.order(9)
+    @pytest.mark.dependency(depends=["test_complete_core_nursing"], name="test_exit_exam_process")
+    def test_exit_exam_process(self):
+        with allure.step("Exit exam process"):
+            self.landing_page.exit_exam_process()
+
+    @allure.title("Confirm Contact Process")
+    @pytest.mark.order(10)
+    @pytest.mark.dependency(depends=["test_exit_exam_process"], name="test_confirm_contact_process")
+    def test_confirm_contact_process(self):
+        with allure.step("Confirm contact process"):
+            self.landing_page.confirm_contact_page_process()
+
+    @allure.title("Result Page Process")
+    @pytest.mark.order(11)
+    @pytest.mark.dependency(depends=["test_confirm_contact_process"], name="test_result_page_process")
+    def test_result_page_process(self):
+        with allure.step("Result page process"):
+            self.landing_page.result_page_process()
+
+    @allure.title("College Plan Process")
+    @pytest.mark.order(12)
+    @pytest.mark.dependency(depends=["test_result_page_process"], name="test_college_plan_process")
+    def test_college_plan_process(self):
+        with allure.step("College plan process"):
+            self.landing_page.college_plan_process()
+
+    @allure.title("Decision PreBuy or NoPreBuy Process")
+    @pytest.mark.order(13)
+    @pytest.mark.dependency(depends=["test_college_plan_process"], name="test_decision_PreBuy_or_NoPreBuy_process")
+    def test_decision_PreBuy_or_NoPreBuy_process(self):
+        with allure.step("Decision PreBuy or NoPreBuy process"):
+            self.landing_page.decision_PreBuy_or_NoPreBuy()
+
