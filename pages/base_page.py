@@ -164,6 +164,29 @@ class BasePage:
                 attempt += 1
         return False
 
+    def compare_element_href(self, selector, expected_href, timeout=5000, retries=5):
+        """Compare element's href attribute with expected href, waiting and retrying if needed."""
+        attempt = 1
+        while attempt <= retries:
+            try:
+                self.logger.debug(
+                    f"Attempt {attempt}/{retries}: Waiting for href {expected_href} on element {selector}")
+                element = self.page.wait_for_selector(selector, timeout=timeout)
+                actual_href = element.get_attribute('href')
+                if actual_href == expected_href:
+                    self.logger.info(f"Href matched: {actual_href}")
+                    return True
+                else:
+                    raise Exception(f"Href mismatch: got {actual_href}, expected {expected_href}")
+            except Exception as e:
+                self.logger.warning(
+                    f"Attempt {attempt}/{retries}: Href check failed for {selector}. Error: {e}")
+                if attempt == retries:
+                    self.logger.error(f"Href check failed after {retries} attempts")
+                    return False
+                attempt += 1
+        return False
+
     def click_with_retry(self, locator, expected_url, retries=5):
         """Click an element with retries, handling same-page scenarios."""
         initial_url = self.page.url

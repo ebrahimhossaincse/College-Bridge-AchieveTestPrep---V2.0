@@ -5,6 +5,7 @@ ENV = BaseConfig.ENV
 HEADLESS = BaseConfig.HEADLESS
 BROWSER = BaseConfig.BROWSER
 PREBUY = BaseConfig.PREBUY
+DECISION = BaseConfig.DECISION
 
 try:
     yaml_path = BaseConfig.ENV_CONFIG_DIR / f"{ENV}.yaml"

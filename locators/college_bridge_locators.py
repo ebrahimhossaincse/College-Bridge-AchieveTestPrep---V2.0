@@ -102,7 +102,7 @@ class ReadinessPageLocators:
     NOT_YET = "//div[.=\"Not yet. I'd like more information.\"]"
     NEXT_BUTTON = "//footer/button[1]"
 
-class ReadinessPageLocators:
+class ReadyImmediateInfoPageLocators:
     SCHEDULE_NOW = "(//button[contains(text(), 'Schedule Now')])[1]"
     HOW_OUR_STUDENTS_SUCCEED = "//button[contains(text(),'How our students succeed')]"
 
